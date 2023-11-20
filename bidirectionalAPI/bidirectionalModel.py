@@ -38,7 +38,7 @@ class initiate_model():
     print(result_dataFrame.tail(10))
 
     # Specify the column to exclude (change 'column_to_exclude' to the actual column name)
-    column_to_exclude = 'Date_Time'
+    column_to_exclude = ['Date_Time', 'RF-Intensity.1']
 
     # Exclude the specified column
     df = result_dataFrame.drop(column_to_exclude, axis=1, errors='ignore')
@@ -62,7 +62,7 @@ class initiate_model():
     df = df.drop(['Datetime'], axis=1)
 
     # select the parameters
-    df = df[['Waterlevel', 'Waterlevel.1', 'Waterlevel.2', 'Waterlevel.3', 'RF-Intensity', 'RF-Intensity.1', 'RF-Intensity.2', 'RF-Intensity.3', 'Precipitation', 'Precipitation.1', 'Precipitation.2', 'Humidity', 'Humidity.1', 'Humidity.2', 'Temperature', 'Temperature.1', 'Temperature.2']] 
+    df = df[['Waterlevel', 'Waterlevel.1', 'Waterlevel.2', 'Waterlevel.3', 'RF-Intensity', 'RF-Intensity.2', 'RF-Intensity.3', 'Precipitation', 'Precipitation.1', 'Precipitation.2', 'Humidity', 'Humidity.1', 'Humidity.2', 'Temperature', 'Temperature.1', 'Temperature.2']] 
     df = df.astype(np.float64)  # convert parameters into a double precision floating number
 
     # fill in missing values using linear interpolation
@@ -252,7 +252,8 @@ test_dataloader = torch.utils.data.DataLoader(
 
 print(test_data.shape)
 
-decomposer.load_state_dict(torch.load('transformer.pth'))  # load the trained model
+decomposer.load_state_dict(torch.load('C:\\Users\\Admin - Jordan\\Documents\\ModelAPI\\bidirectionalAPI\\transformer.pth', map_location=torch.device('cpu')))
+  # load the trained model
 
 decomposer.eval()  # set model on test mode
 
@@ -288,7 +289,7 @@ def forecast():
     
     mydb._open_connection()
     cursor = mydb.cursor()
-    cursor.execute("SELECT DateTime FROM rivercast.rivercast_waterlevel_prediction order by DateTime DESC LIMIT 1")
+    cursor.execute("SELECT DateTime FROM rivercast.bidirectional_waterlevel_prediction order by DateTime DESC LIMIT 1")
     lastPredDT = cursor.fetchone()[0]
     formatted_lastPredDT = lastPredDT.strftime('%Y-%m-%d %H:%M:%S')
 
@@ -304,7 +305,7 @@ def forecast():
 
 
 
-    cursor.execute("SELECT DateTime FROM rivercast.rivercast_waterlevel_obs order by DateTime DESC LIMIT 1")
+    cursor.execute("SELECT DateTime FROM rivercast.bidirectional_waterlevel_obs order by DateTime DESC LIMIT 1")
     lastTrueDT = cursor.fetchone()[0] + timedelta(hours=6)
 
     # Extract the forecast for the next 15 days
@@ -328,7 +329,6 @@ def forecast():
 
     return matches_and_following_rows_pred[1:2], matches_and_following_rows
 
-forecast()
 
 
 def getAttnScores():
